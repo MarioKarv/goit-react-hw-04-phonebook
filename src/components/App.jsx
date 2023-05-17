@@ -1,40 +1,27 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import ContactForm from './ContactForm/ContactForm'
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter'
 import css from './App.module.css'
 
- export class App extends Component {
-   state = {
-     contacts: [],
-     filter: '',
-   };
+export function App() {
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(window.localStorage.getItem('contacts')) ?? [];
+   })
+  
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts))
+  }, [contacts])
 
-   componentDidMount() {
-     const contacts = localStorage.getItem('contacts');
-     const parsedContacts = JSON.parse(contacts);
 
-     if (parsedContacts) {
-       this.setState({ contacts: parsedContacts });
-     }
+  const [filter, setFilter] = useState('')
+
+  const handleAddContact = newContact => {
+     setContacts(prevValue => [...prevValue, newContact])
    }
+    
 
-   componentDidUpdate(_, prevState) {
-     const nextContacts = this.state.contacts;
-     const prevContacts = prevState.contacts;
-
-     if (nextContacts !== prevContacts) {
-       localStorage.setItem('contacts', JSON.stringify(nextContacts));
-     }
-   }
-
-   handleAddContact = newContact =>
-     this.setState(({ contacts }) => ({
-       contacts: [...contacts, newContact],
-     }));
-
-   handleCheckUniqueContact = name => {
-     const { contacts } = this.state;
+   const handleCheckUniqueContact = name => {
 
      const isExistContact = !!contacts.find(contact => contact.name === name);
 
@@ -43,36 +30,33 @@ import css from './App.module.css'
      return !isExistContact;
    };
 
-   handleRemoveContact = id =>
-     this.setState(({ contacts }) => ({
-       contacts: contacts.filter(contact => contact.id !== id),
-     }));
+  const handleRemoveContact = id => {
+     setContacts(contacts.filter(contact => contact.id !== id))
+   }
 
-   handleFilterChange = filter => this.setState({ filter });
+   const handleFilterChange = filter => setFilter(filter);
 
-   getVisibleContacts = () => {
-     const { contacts, filter } = this.state;
+   const getVisibleContacts = () => {
      return contacts.filter(contact =>
        contact.name.toLowerCase().includes(filter.toLowerCase())
      );
    };
-   render() {
-     const { filter } = this.state;
-     const visibleContacts = this.getVisibleContacts();
+   
+     const visibleContacts = getVisibleContacts();
      return (
        <div className={css.container}>
          <h1>Phonebook</h1>
          <ContactForm
-           onAdd={this.handleAddContact}
-           onCheckUnique={this.handleCheckUniqueContact}
+           onAdd={handleAddContact}
+           onCheckUnique={handleCheckUniqueContact}
          />
          <h2>Contacts</h2>
-         <Filter filter={filter} onChange={this.handleFilterChange} />
+         <Filter filter={filter} onChange={handleFilterChange} />
          <ContactList
            contacts={visibleContacts}
-           onRemove={this.handleRemoveContact}
+           onRemove={handleRemoveContact}
          />
        </div>
      );
    }
- }
+ 

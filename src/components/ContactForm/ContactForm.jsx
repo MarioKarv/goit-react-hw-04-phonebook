@@ -1,36 +1,43 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import css from './ContactForm.module.css'
 
-const INITIAL_STATE = {
-  name: '',
-  number: '',
-};
 
-class ContactForm extends Component {
-  state = INITIAL_STATE;
+function ContactForm({ onAdd, onCheckUnique }) {
+  const [name, setName] = useState('')
+  const [number, setNumber] = useState('')
+  
 
-  handleChangeForm = ({ target }) => {
-    const { name, value } = target;
-    this.setState({ [name]: value });
+  const handleChangeForm = (e) => {
+    const { name, value } = e.target;
+
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+
+      case 'number':
+        setNumber(value);
+        break;
+
+      default:
+        return;
+    }
   };
 
-  handleFormSubmit = e => {
+  const handleFormSubmit = e => {
     e.preventDefault();
-    const { name, number } = this.state;
-    const { onAdd } = this.props;
 
-    const isValidatedForm = this.validateForm();
+
+    const isValidatedForm = validateForm();
 
     if (!isValidatedForm) return;
 
     onAdd({ id: nanoid(), name, number });
-    this.resetForm();
+    resetForm();
   };
 
-  validateForm = () => {
-    const { name, number } = this.state;
-    const { onCheckUnique } = this.props;
+  const validateForm = () => {
     if (!name || !number) {
       alert('Some field is empty');
       return false;
@@ -38,12 +45,14 @@ class ContactForm extends Component {
     return onCheckUnique(name);
   };
 
-  resetForm = () => this.setState(INITIAL_STATE);
+  const resetForm = () => {
+    setName('');
+    setNumber('');
+  };
 
-  render() {
-    const { name, number } = this.state;
+  
     return (
-      <form onSubmit={this.handleFormSubmit}>
+      <form onSubmit={handleFormSubmit}>
         <label className={css.label}>
           Name
           <input
@@ -54,7 +63,7 @@ class ContactForm extends Component {
             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
             title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
             value={name}
-            onChange={this.handleChangeForm}
+            onChange={handleChangeForm}
           />
         </label>
 
@@ -68,7 +77,7 @@ class ContactForm extends Component {
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
             value={number}
-            onChange={this.handleChangeForm}
+            onChange={handleChangeForm}
           />
         </label>
         <button type="submit" className={css.button}>
@@ -77,6 +86,6 @@ class ContactForm extends Component {
       </form>
     );
   }
-}
+
 
 export default ContactForm;
