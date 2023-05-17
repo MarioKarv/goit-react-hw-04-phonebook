@@ -1,0 +1,27 @@
+.label{
+    display: block;
+    font-weight: 700;
+}
+.label:not(:last-child){
+    margin-bottom: 10px;
+}
+
+.input{
+    margin-left: 10px;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+
+.button{
+    width: 120px;
+    height: 40px;
+    background-color: lightgray;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+
+.button:hover,:focus{
+    background-color: whitesmoke;
+}
